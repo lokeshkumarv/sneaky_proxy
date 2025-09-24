@@ -1,7 +1,7 @@
 ########################
 # redirect.rules
 
-FROM python:3.11-slim-bookworm AS builder
+FROM python:3.11-buster AS builder
 
 ARG REDIRECT_URL
 ENV REDIRECT_URL $REDIRECT_URL
