@@ -1,8 +1,4 @@
 services:
-
-########################
-# sneaky_proxy
-
   preflight:
     container_name: sneaky_proxy
     build:
@@ -10,9 +6,17 @@ services:
       dockerfile: Dockerfile
       network: host
       args:
-        -  'REDIRECT_URL=${REDIRECT_URL}'
-        -  'PROXY_DOMAIN=${PROXY_DOMAIN}'
-        -  'HIDDEN_HOST=${HIDDEN_HOST}'
-    ports:
-      - 443:443
+        - 'REDIRECT_URL=${REDIRECT_URL}'
+        - 'PROXY_DOMAIN=${PROXY_DOMAIN}'
+        - 'HIDDEN_HOST=${HIDDEN_HOST}'
+
     image: sneaky_proxy
+    ports:
+      - "443:443"
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        
