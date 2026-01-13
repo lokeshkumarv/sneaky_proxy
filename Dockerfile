@@ -42,7 +42,7 @@ ENV PROXY_DOMAIN $PROXY_DOMAIN
 ENV HIDDEN_HOST $HIDDEN_HOST
 
 # Installing needed packages
-RUN apt update && apt install certbot apache2 git python3-certbot-apache -y
+RUN apt update && apt install -y certbot apache2 apache2-utils git python3-certbot-apache
 RUN a2enmod proxy_http proxy_balancer lbmethod_byrequests proxy proxy_ajp rewrite deflate headers proxy_connect proxy_html
 
 # Copying the latest redirect.rules over
@@ -69,9 +69,11 @@ RUN echo '\t' ProxyPass / http://${HIDDEN_HOST}/ >> /etc/apache2/sites-enabled/0
 RUN echo '\t' ProxyPassReverse / http://${HIDDEN_HOST}/ >> /etc/apache2/sites-enabled/000-default-le-ssl.conf
 RUN echo '</VirtualHost>' >> /etc/apache2/sites-enabled/000-default-le-ssl.conf
 RUN echo '</IfModule>' >> /etc/apache2/sites-enabled/000-default-le-ssl.conf
+RUN sed -ri 's#^\s*ErrorLog\s+.*#ErrorLog "|/usr/bin/rotatelogs -n 3 /var/log/apache2/error.log 10M"#' /etc/apache2/sites-enabled/000-default-le-ssl.conf
+RUN sed -ri 's#^\s*CustomLog\s+.*#CustomLog "|/usr/bin/rotatelogs -n 3 /var/log/apache2/access.log 10M" combined#' /etc/apache2/sites-enabled/000-default-le-ssl.conf
 
 # Updating redirect.rules
 RUN sed -i '27 s/#//' /etc/apache2/redirect.rules
 RUN sed -i -e '159d' /etc/apache2/redirect.rules
 
-CMD apachectl -D BACKGROUND && tail -f /var/log/apache2/error.log -f /var/log/apache2/access.log
+CMD ["apache2ctl", "-D", "FOREGROUND"]
