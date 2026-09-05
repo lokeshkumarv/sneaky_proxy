@@ -1,14 +1,12 @@
 ########################
 # redirect.rules
 
-FROM python:3.8-slim-bullseye AS builder
+FROM python:3.11-slim-bookworm AS builder
 
 ARG REDIRECT_URL
 ENV REDIRECT_URL $REDIRECT_URL
 
-RUN apt-get update
-
-RUN apt-get install -y whois git net-tools
+RUN apt-get update && apt-get install -y --no-install-recommends whois git net-tools && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/*
